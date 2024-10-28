@@ -19,6 +19,7 @@ def index(request):
 def person(request):
     if request.method == 'GET':
         persons = PersonSerializer(Person.objects.all(),many=True)
+        persons = PersonSerializer(Person.objects.filter(color__isnull=False), many=True)
         return Response(persons.data)
     elif request.method == 'POST':
         data = PersonSerializer(data=request.data)
