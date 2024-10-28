@@ -12,12 +12,13 @@ class ColorSerializer(serializers.ModelSerializer):
         fields = ['color_name']
 
 class PersonSerializer(serializers.ModelSerializer):
-    color = ColorSerializer()
-    color_info = serializers.SerializerMethodField()
+    # color = ColorSerializer()
+    color = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all())
+    # color_info = serializers.SerializerMethodField()
     class Meta:
         model = Person
         fields = '__all__'
-        # fields = ['name','age']
+        fields = ['id','name','age','color']
         # exclude = ['age']
         # depth = 1
 
@@ -33,11 +34,11 @@ class PersonSerializer(serializers.ModelSerializer):
     #     return name
     def validate(self, data):
         special_characters = "!@#$%^&*()-+?_=,<>/"
-        if data['age'] < 18:
+        if data.get('age') and data['age'] < 18:
             raise serializers.ValidationError("Age must be greater than 18")
         if any(c in special_characters for c in data['name']):
             raise serializers.ValidationError("Name must not contain special characters")
         return data
-    def get_color_info(self,data):
-        color_obj = Color.objects.get(id=data.color.id)
-        return {"color_name": color_obj.color_name, "hex_code": "#010101"}
+    # def get_color_info(self,data):
+    #     color_obj = Color.objects.get(id=data.color.id)
+    #     return {"color_name": color_obj.color_name, "hex_code": "#010101"}
