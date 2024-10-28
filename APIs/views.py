@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Person
-from .serializers import PersonSerializer
+from .serializers import PersonSerializer, LoginSerializer
 from django.shortcuts import get_object_or_404
 
 @api_view(['GET','POST','PUT'])
@@ -14,6 +14,14 @@ def index(request):
         return Response({"data": "hello Abdullah from POST"})
     elif request.method == 'PUT':
         return Response({"data": "hello Abdullah from PUT"})
+
+
+@api_view(['POST'])
+def login(request):
+    data = LoginSerializer(data=request.data)
+    if data.is_valid():
+        return Response({"message": "Success","data": data.data})
+    return Response(data.errors)
 
 @api_view(['GET','POST'])
 def person(request):
@@ -48,4 +56,4 @@ def singlePerson(request,id):
         return Response(data.errors)
     elif request.method == 'DELETE':
         person.delete()
-        return Response({"data": "Person Deleted"})
+        return Response({"message": "Person Deleted"})
