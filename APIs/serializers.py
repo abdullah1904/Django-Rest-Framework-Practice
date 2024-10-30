@@ -12,16 +12,19 @@ class ColorSerializer(serializers.ModelSerializer):
         fields = ['color_name']
 
 class PersonSerializer(serializers.ModelSerializer):
-    # color = ColorSerializer()
-    color = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all())
+    color_id = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all(), source='color',write_only=True)
+    color = ColorSerializer(read_only=True)
     # color_info = serializers.SerializerMethodField()
     class Meta:
         model = Person
         fields = '__all__'
-        fields = ['id','name','age','color']
+        # fields = ['id','name','age','color']
         # exclude = ['age']
         # depth = 1
-
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['color'] = ColorSerializer(instance.color).data
+        return representation
     # def validate_age(self,age):
     #     if age < 18:
     #         raise serializers.ValidationError("Age must be greater than 18")

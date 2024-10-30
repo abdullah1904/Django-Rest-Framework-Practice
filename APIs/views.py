@@ -1,9 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets, status
 from .models import Person
 from .serializers import PersonSerializer, LoginSerializer
-from django.shortcuts import get_object_or_404
 
 @api_view(['GET','POST','PUT'])
 def index(request):
@@ -100,3 +101,19 @@ class PersonDetailView(APIView):
 #     elif request.method == 'DELETE':
 #         person.delete()
 #         return Response({"message": "Person Deleted"})
+
+class PersonViewSet(viewsets.ModelViewSet):
+    serializer_class = PersonSerializer
+    queryset = Person.objects.all()
+    def list(self, request):
+        search = request.GET.get('search')
+        queryset = self.queryset
+        if(search):
+            queryset = queryset.filter(name__startswith=search)
+        data = PersonSerializer(queryset,many=True)
+        return Response({'message': 'OK','data': data.data})
+    # def destroy(self, request, *args, **kwargs):
+    #     response = super().destroy(request, *args, **kwargs)
+    #     if response.status_code == status.HTTP_204_NO_CONTENT:
+    #         return Response({'message': 'Person deleted successfully'}, status=status.HTTP_200_OK)
+    #     return response
