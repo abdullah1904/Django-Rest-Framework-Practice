@@ -1,6 +1,6 @@
 from . import views
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 # urlpatterns = [
@@ -15,4 +15,8 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'person',views.PersonViewSet,basename="person")
-urlpatterns = router.urls
+urlpatterns = [
+    path("", include(router.urls)),
+    path("register/", views.Register.as_view()),
+    path("login/", views.Login.as_view()),
+]

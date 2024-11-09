@@ -1,9 +1,26 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Person, Color
 
 
-class LoginSerializer(serializers.Serializer):
+class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField()
     email = serializers.EmailField()
+    password = serializers.CharField()
+    def validate(self, data):
+        if data['username'] and User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError("Username already exists")
+        if data['email'] and User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError("Email already exists")
+        return data
+    def create(self, validated_data):
+        user = User.objects.create(username=validated_data['username'],email=validated_data['email'])
+        user.set_password(validated_data['password'])
+        user.save()
+        return validated_data
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
     password = serializers.CharField()
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -21,10 +38,7 @@ class PersonSerializer(serializers.ModelSerializer):
         # fields = ['id','name','age','color']
         # exclude = ['age']
         # depth = 1
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['color'] = ColorSerializer(instance.color).data
-        return representation
+
     # def validate_age(self,age):
     #     if age < 18:
     #         raise serializers.ValidationError("Age must be greater than 18")

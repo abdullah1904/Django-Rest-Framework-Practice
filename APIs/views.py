@@ -1,10 +1,38 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets, status
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .models import Person
-from .serializers import PersonSerializer, LoginSerializer
+from .serializers import PersonSerializer, LoginSerializer, RegisterSerializer
+
+
+class Register(APIView):
+    # class Meta:
+    #     method = ['POST']
+    def post(self,request):
+        data = RegisterSerializer(data = request.data)
+        if data.is_valid():
+            data.save()
+            return Response(data.data)
+        return Response(data.errors)
+
+
+class Login(APIView):
+    def post(self,request):
+        data = LoginSerializer(data=request.data)
+        if data.is_valid():
+            user = authenticate(username=data.data['username'], password=data.data['password'])
+            if not user:
+                return Response({"message": "Invalid Credentials"},status=status.HTTP_404_NOT_FOUND)
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({"message": "Success", "token": str(token)})
+        return Response(data.errors) 
 
 @api_view(['GET','POST','PUT'])
 def index(request):
@@ -105,13 +133,21 @@ class PersonDetailView(APIView):
 class PersonViewSet(viewsets.ModelViewSet):
     serializer_class = PersonSerializer
     queryset = Person.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     def list(self, request):
-        search = request.GET.get('search')
-        queryset = self.queryset
-        if(search):
-            queryset = queryset.filter(name__startswith=search)
-        data = PersonSerializer(queryset,many=True)
-        return Response({'message': 'OK','data': data.data})
+        try:
+            search = request.GET.get('search')
+            page = request.GET.get('page',1)
+            page_size = 1
+            queryset = self.queryset
+            if(search):
+                queryset = queryset.filter(name__startswith=search)
+            paginator = Paginator(queryset,page_size)
+            data = PersonSerializer(paginator.page(page),many=True)
+            return Response({'message': 'OK','data': data.data})
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     # def destroy(self, request, *args, **kwargs):
     #     response = super().destroy(request, *args, **kwargs)
     #     if response.status_code == status.HTTP_204_NO_CONTENT:
