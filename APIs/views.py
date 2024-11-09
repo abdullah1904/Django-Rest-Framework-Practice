@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -135,6 +136,7 @@ class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+    http_method_names = ['GET','POST','PUT','PATCH','DELETE']
     def list(self, request):
         try:
             search = request.GET.get('search')
@@ -153,3 +155,8 @@ class PersonViewSet(viewsets.ModelViewSet):
     #     if response.status_code == status.HTTP_204_NO_CONTENT:
     #         return Response({'message': 'Person deleted successfully'}, status=status.HTTP_200_OK)
     #     return response
+    @action(detail=True, methods=['POST'])
+    def send_mail_to_person(self, request,pk):
+        person = Person.objects.get(pk=pk)
+        print(person)
+        return Response({'message': 'Mail sent successfully'})
