@@ -1,0 +1,89 @@
+# Byte-compiled files
+*.py[cod]
+__pycache__/
+*.so
+
+# Django-specific files
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+*.sqlite3-journal
+
+# Media files
+media/
+uploads/
+
+# Django migrations
+**/migrations/*
+
+# Environment variables
+.env
+*.env
+*.local
+
+# Static files
+staticfiles/
+static/
+
+# Virtual environment
+venv/
+env/
+*.venv
+*.virtualenv
+
+# IDE/editor-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS-specific files
+.DS_Store
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.nox/
+.pytest_cache/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Test and linting results
+*.out
+*.xml
+*.result
+test-reports/
+
+# Cache files
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+parts/
+sdist/
+wheels/
+
+# PyInstaller
+# Usually these files are written by a Python script from a template
+# before PyInstaller builds the binaries.
+# See https://pyinstaller.readthedocs.io/en/stable/usage.html#making-spec-files
+*.manifest
+*.spec
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage directory used by pytest-cov
+.coverage
