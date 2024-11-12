@@ -1,10 +1,14 @@
 from rest_framework import generics, filters,status, viewsets
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from .models import MenuItem
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
 from .serializers import MenuItemSerializer
 from django.core.paginator import Paginator, EmptyPage
 from .paginations import CustomMenuItemPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 class MenuItemFilter(FilterSet):
     category = CharFilter(field_name="category__title", lookup_expr="exact")  # Filter by category (case insensitive)
@@ -57,5 +61,33 @@ class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
 class MenuItemsViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    pagination_class = CustomMenuItemPagination
     ordering_fields=['price','inventory']
     search_fields=['title','category__title']
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def secret(request):
+#     return Response("This is a secret page",status=status.HTTP_200_OK)
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# @throttle_classes([UserRateThrottle])
+# def me(request):
+#     return Response(request.user.email)
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def manager_view(request):
+#     if request.user.groups.filter(name="Manager").exists():
+#         return Response({"message":"Hello Manager"})
+#     else:
+#         return Response({"message": "Not Authorized"},status=status.HTTP_403_FORBIDDEN)
+
+
+# @api_view()
+# @throttle_classes([AnonRateThrottle])
+# def throttle(request):
+#     return Response({"message": "Test"})
