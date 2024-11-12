@@ -6,7 +6,7 @@ from decimal import Decimal
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'title','slug']
+        fields = ['id', 'title']
 
 class MenuItemSerializer(serializers.ModelSerializer):
     stock = serializers.IntegerField(source='inventory')
@@ -16,9 +16,9 @@ class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = ['id', 'title', 'price','stock','price_after_tax','category', 'category_id']
-        # extra_kwargs = {
-        #     'price': {'min_value': 2},
-        #     'inventory':{'min_value':0}
-        # }
+        extra_kwargs = {
+            'price': {'min_value': 2},
+            'stock':{'source': 'inventory','min_value':0}
+        }
     def calculate_tax(self,item:MenuItem):
         return item.price * Decimal(1.1)

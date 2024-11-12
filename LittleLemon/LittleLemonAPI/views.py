@@ -1,4 +1,4 @@
-from rest_framework import generics, filters,status
+from rest_framework import generics, filters,status, viewsets
 from rest_framework.response import Response
 from .models import MenuItem
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
@@ -53,3 +53,9 @@ class MenuItemsView(generics.ListCreateAPIView):
 class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+
+class MenuItemsViewSet(viewsets.ModelViewSet):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
+    ordering_fields=['price','inventory']
+    search_fields=['title','category__title']
